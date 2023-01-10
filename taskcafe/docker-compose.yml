@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+  list-web:
+    container_name: list-web
+    image: taskcafe/taskcafe:nightly
+    volumes:
+      - D:/taskcafe/list-uploads:/root/uploads
+    ports:
+      - 3333:3333
+    networks:
+      - list-network
+    depends_on:
+      - list-database
+    restart: unless-stopped
+    
+    environment:
+      TASKCAFE_DATABASE_HOST: list-database
+      TASKCAFE_MIGRATE: "true"
+  
+  list-database:
+    container_name: list-database
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: taskcafe
+    image: postgres:12.3-alpine
+    networks:
+      - list-network
+    restart: unless-stopped
+    volumes:
+      - D:/taskcafe/list-database:/var/lib/postgresql/data
+
+networks:
+  list-network:
+    driver: bridge
