@@ -1,0 +1,38 @@
+version: "2.1"
+
+services:
+  cloud-web:
+    container_name: cloud-web
+    depends_on:
+      - cloud-database
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Ljubljana
+    image: linuxserver/nextcloud
+    ports:
+      - 33333:80 #default is x:443 which has SSL integrated, set it to x:80 to workaround problems in reverse proxy caddy
+    restart: unless-stopped
+    volumes:
+      - /home/array0/backup/cloud.kle.si:/backup
+      - /home/array0/cloud.kle.si:/data
+      - ./config:/config
+
+  cloud-database:
+    container_name: cloud-database #enter this as Database host at setup
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_USER=mysqluser
+      - MYSQL_PASSWORD=mysqlpassword
+      - MYSQL_DATABASE=cloud-database
+      - TZ=Europe/Ljubljana
+    image: linuxserver/mariadb
+    restart: unless-stopped
+    volumes:
+      - ./database:/config
+
+#FIX: Access through untrusted domain
+#add access url (like website.net) to the following file
+#config/www/nextcloud/config/config.php
