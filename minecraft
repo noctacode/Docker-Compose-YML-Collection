@@ -2,7 +2,7 @@ version: "3.8"
 services:
   minecraft:
     container_name: minecraft
-    #image: itzg/minecraft-server:2022.11.0-java8-openj9
+    #image: itzg/minecraft-server:2022.11.0-java8-openj9 #used older version for troubleshooting sometimes
     image: itzg/minecraft-server
     volumes:
       - H:/minecraft/minecraft-data:/data
