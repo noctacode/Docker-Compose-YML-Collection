@@ -1,0 +1,59 @@
+#https://github.com/AbdBarho/stable-diffusion-webui-docker/blob/master/docker-compose.yml
+
+version: '3.9'
+
+x-base_service: &base_service
+    ports:
+      - 7860:7860
+    volumes:
+      - &v1 ./data:/data
+      - &v2 ./output:/output
+    deploy:
+      resources:
+        reservations:
+          devices:
+              - driver: nvidia
+                device_ids: ['0']
+                capabilities: [gpu]
+
+name: stablediffusion
+
+services:
+  download:
+    build: ./services/download/
+    profiles: ["download"]
+    volumes:
+      - *v1
+
+  auto: &automatic
+    <<: *base_service
+#    profiles: ["auto"] #commenting this line makes this profile automatically selected; "--profile auto" is not needed anymore with "docker compose"
+    build: ./services/AUTOMATIC1111
+    image: sd-auto:1
+    environment:
+      - CLI_ARGS=--enable-console-prompts --xformers
+                  #--medvram optimizes model by sacrificing a little speed for low VRM usage
+                  #--allow-code allows custom script execution from webui
+                  #--enable-console-prompts prints txt2img and img2img prompts to console
+                  #--optimized-turbo #enables 6GB GPU, with limited features
+                  #--xformers #lowers VRAM usage .. somehow
+    restart: unless-stopped #COULD INTERFERE IF ANOTHER SERVICE IS SELECTED
+
+  auto-cpu:
+    <<: *automatic
+    profiles: ["auto-cpu"]
+    deploy: {}
+    environment:
+      - CLI_ARGS=--no-half --precision full #these arguments are required to run in this mode
+
+# find CLI_ARGS here: https://github.com/AUTOMATIC1111/stable-diffusion-webui/blob/master/modules/shared.py
+
+# nvidia setup (mainly: https://jellyfin.org/docs/general/administration/hardware-acceleration.html):
+# 1 install nvidia drivers
+# 2 add nvidia container toolkit repository
+# 3 apt install nvidia-docker2
+# 4 systemctl restart docker
+# 5 add deploy line(s) to docker-compose.yml
+# 6 docker compose up
+# 7 docker exec -it stablediffusion nvidia-smi (this connects to the docker container and checks for drivers. if output is non-error, you're good to go)
+# 8 if output is blank: ubuntu-drivers autoinstall & systemctl restart docker
