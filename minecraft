@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+  minecraft:
+    container_name: minecraft
+    #image: itzg/minecraft-server:2022.11.0-java8-openj9
+    image: itzg/minecraft-server
+    volumes:
+      - H:/minecraft/minecraft-data:/data
+    ports:
+      - 25565:25565
+    restart: unless-stopped
+    
+    environment:
+      TZ: Europe/Ljubljana
+      EULA: "true"
+      TYPE: forge
+      OVERRIDE_SERVER_PROPERTIES: "true"
+      ONLINE_MODE: "false"
+      SNOOPER_ENABLED: "false"
+      MAX_PLAYERS: 128
+      MAX_MEMORY: 32G
+      MAX_BUILD_HEIGHT: 1024
+      VIEW_DISTANCE: 32
+      MOTD: ".. a world of freedom and nourished discovery .."
+      LEVEL_TYPE: largebiomes #default flat largebiomes amplified customized buffet biomesoplenty
+#      WORLD: https://www.minecraftmaps.com/survival-maps/cube-survival/download
+      LEVEL: world01
+#      SEED:""
+      DIFFICULTY: normal
