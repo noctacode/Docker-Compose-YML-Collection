@@ -1,0 +1,47 @@
+version: "2.1"
+services:
+  jellyfin:
+    container_name: jellyfin
+    deploy: #necessary for Nvidia transcoding
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Ljubljana
+      - JELLYFIN_PublishedServerUrl=website.net #optional
+      - NVIDIA_VISIBLE_DEVICES=all #necessary for Nvidia transcoding
+    image: linuxserver/jellyfin:latest
+    ports:
+      - 8096:8096
+      #- 8920:8920 #https
+      #- 7359:7359/udp #LAN discovery
+      #- 1900:1900/udp #DLNA discovery
+    restart: 'no'
+    volumes:
+      - ./config:/config
+      # BRANDING
+      - ./branding/index.html:/usr/share/jellyfin/web/index.html
+      - ./branding/config.json:/usr/share/jellyfin/web/config.json
+      - ./branding/logo.png:/usr/share/jellyfin/web/assets/img/banner-dark.png
+      - ./branding/logo.png:/usr/share/jellyfin/web/assets/img/banner-light.png
+      - ./branding/logo.png:/usr/share/jellyfin/web/assets/img/icon-transparent.png
+      - ./branding/logo.png:/usr/share/jellyfin/web/favicon.ico
+      - ./branding/logo.png:/usr/share/jellyfin/web/favicon.png
+      - ./branding/main.jellyfin.bundle.js:/usr/share/jellyfin/web/main.jellyfin.bundle.js
+      # LIBRARIES
+      - ./videos1:/library/videos1:ro
+      - ./videos2:/library/videos2:ro
+      - ./series:/library/series:ro
+
+# nvidia transcoding setup (mainly: https://jellyfin.org/docs/general/administration/hardware-acceleration.html):
+# 1 install nvidia drivers
+# 2 add nvidia container toolkit repository
+# 3 apt install nvidia-docker2
+# 4 systemctl restart docker
+# 5 add deploy and nvidia_visible_devices line(s) to docker-compose.yml
+# 6 docker compose up
+# 7 docker exec -it jellyfin nvidia-smi (this connects to the docker container and checks for drivers. if output is non-error, you're good to go)
+# 8 if output is blank: ubuntu-drivers autoinstall & systemctl restart docker
