@@ -1,0 +1,31 @@
+version: "2.1"
+services:
+  swag:
+    image: linuxserver/swag:latest
+    container_name: swag
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Ljubljana
+      - URL=website.net
+      - VALIDATION=dns
+      - SUBDOMAINS=wildcard #optional
+      - CERTPROVIDER=zerossl #optional
+      - DNSPLUGIN=cloudflare #optional
+      - PROPAGATION= #optional
+      - DUCKDNSTOKEN= #optional
+      - EMAIL=your@mail.com #optional
+      - ONLY_SUBDOMAINS=false #optional
+      - EXTRA_DOMAINS=anotherwebsite.net #optional
+      - STAGING=false #optional
+    volumes:
+      - ./config:/config
+      - ../website.net:/config/www/website.net
+      - ../anotherwebsite.net:/config/www/anotherwebsite.net
+      
+    ports:
+      - 443:443
+      - 80:80 #optional
+    restart: unless-stopped
