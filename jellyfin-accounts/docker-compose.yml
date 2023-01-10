@@ -1,0 +1,12 @@
+version: '3'
+services:
+  jfago:
+    image: hrfee/jfa-go:latest
+    restart: unless-stopped
+    ports:
+      - 8056:8056
+    # - 8057:8057 used for tls
+    volumes:
+      - ./config:/data
+      - ../jellyfin/config/:/jf
+      - /etc/localtime:/etc/localtime:ro
